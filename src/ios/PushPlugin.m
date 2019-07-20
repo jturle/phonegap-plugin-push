@@ -362,9 +362,15 @@
     }
     NSLog(@"Push Plugin register success: %@", deviceToken);
 
-    NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
-                        stringByReplacingOccurrencesOfString:@">" withString:@""]
-                       stringByReplacingOccurrencesOfString: @" " withString: @""];
+    const unsigned *tokenBytes = [deviceToken bytes];
+    NSString *token = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
+                        ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
+                        ntohl(tokenBytes[3]), ntohl(tokenBytes[4]), ntohl(tokenBytes[5]),
+                        ntohl(tokenBytes[6]), ntohl(tokenBytes[7])];
+
+    NSMutableDictionary *results = [NSMutableDictionary dictionary];
+    [results setValue:token forKey:@"deviceToken"];
+
 #if !TARGET_IPHONE_SIMULATOR
 
     // Check what Notifications the user has turned on.  We registered for all three, but they may have manually disabled some or all of them.
